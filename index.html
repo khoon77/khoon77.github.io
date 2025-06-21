@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>주식 복리 계산기</title>
+  <style>
+    body { font-family: Arial; max-width: 800px; margin: auto; padding: 20px; }
+    .result-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    .result-table th, .result-table td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    .ad { margin: 20px 0; border: 1px solid #ddd; padding: 10px; background: #f9f9f9; text-align: center; }
+    #chart-container { margin-top: 30px; }
+    input[type="text"] { text-align: right; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <h1>📈 주식 복리 계산기</h1>
+
+  <label>초기금액 (원): 
+    <input type="text" id="initialAmount" value="1,000,000" autocomplete="off">
+  </label><br><br>
+
+  <label>수익률 (%): 
+    <input type="range" id="interestRate" min="1" max="100" value="10">
+    <span id="rateDisplay">10%</span>
+  </label><br><br>
+
+  <label>기간 단위 선택:
+    <select id="timeUnit">
+      <option value="daily">일</option>
+      <option value="monthly">월</option>
+      <option value="yearly">년</option>
+    </select>
+  </label><br><br>
+
+  <label>총 기간 (1~30):
+    <select id="periodCount"></select>
+    <span id="periodUnitLabel">일</span>
+  </label><br><br>
+
+  <button onclick="calculateCompound()">💡 계산하기</button>
+
+  <div class="ad">[ 여기에 광고 배너 삽입 위치 1 ]</div>
+
+  <div id="resultArea"></div>
+
+  <div id="chart-container">
+    <canvas id="compoundChart" width="700" height="350"></canvas>
+  </div>
+
+  <div class="ad">[ 여기에 광고 배너 삽입 위치 2 ]</div>
+
+  <script>
+    // 1~30 옵션 생성
+    const periodSelect = document.getElementById("periodCount");
+    for(let i=1; i<=30; i++){
+      const option = document.createElement("option");
+      option.value = i;
+      option.textContent = i;
+      periodSelect.appendChild(option);
+    }
+
+    // 금액 입력에 콤마 자동 삽입
+    function formatNumberWithCommas(x) {
+      if (isNaN(x) || x === '') return '';
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    function uncomma(x) {
+      return x.replace(/[^0-9]/g, "");
+    }
+
+    const initialInput = document.getElementById("initialAmount");
+    initialInput.addEventListener("input", function(e) {
+      let val = uncomma(this.value);
+      val = val.replace(/^0+/, '');
+      if(val) {
+        this.value = formatNumberWithCommas(val);
+      } else {
+        this.value = "";
+      }
+    });
+
+    document.getElementById("interestRate").oninput = function() {
+      document.getElementById("rateDisplay").innerText = this.value + "%";
+    };
+
+    document.getElementById("timeUnit").onchange = function() {
+      let unit = "일";
+      if (this.value === "monthly") unit = "월";
+      else if (this.value === "yearly") unit = "년";
+      document.getElementById("periodUnitLabel").innerText = unit;
+    };
+
+    let compoundChart = null;
+
+    function calculateCompound() {
+      const principalStr = uncomma(document.getElementById("initialAmount").value);
+      const principal = parseFloat(principalStr);
+      const rate = parseFloat(document.getElementById("interestRate").value);
+      const timeUnit = document.getElementById("timeUnit").value;
+      const periodCount = parseInt(document.getElementById("periodCount").value);
+
+      if(isNaN(principal) || principal <= 0) {
+        alert("초기 금액을 올바르게 입력해 주세요.");
+        return;
+      }
+
+      let unitText = '';
+      if (timeUnit === "daily") unitText = '일';
+      else if (timeUnit === "monthly") unitText = '월';
+      else unitText = '년';
+
+      let results = [];
+      // 그래프 데이터
+      const chartLabels = [];
+      const chartData = [];
+
+      let amount = principal;
+      for (let i = 1; i <= periodCount; i++) {
+        amount = amount * (1 + rate / 100);
+        let profit = amount - principal;
+        results.push({
+          period: i,
+          total: formatNumberWithCommas(amount.toFixed(0)),
+          profit: formatNumberWithCommas(profit.toFixed(0))
+        });
+        chartLabels.push(i + unitText);
+        chartData.push(Number(amount.toFixed(0)));
+      }
+
+      let html = `<h2>📊 결과 (${unitText} 단위)</h2><table class="result-table">
+                    <tr><th>${unitText}</th><th>총 금액 (원)</th><th>수익금 (원)</th></tr>`;
+      results.forEach(r => {
+        html += `<tr><td>${r.period}</td><td>${r.total}</td><td>${r.profit}</td></tr>`;
+      });
+      html += `</table>`;
+
+      document.getElementById("resultArea").innerHTML = html;
+
+      // Chart.js 그래프 그리기
+      const ctx = document.getElementById('compoundChart').getContext('2d');
+      if (compoundChart) {
+        compoundChart.destroy();
+      }
+
+      compoundChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: chartLabels,
+          datasets: [{
+            label: '총 금액 (원)',
+            data: chartData,
+            fill: true,
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75,192,192,0.1)',
+            tension: 0.1,
+            pointRadius: 2
+          }]
+        },
+        options: {
+          responsive: false,
+          plugins: {
+            legend: { display: true }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return formatNumberWithCommas(value) + '원';
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>
