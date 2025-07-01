@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+  <meta name="description" content="주식 복리 계산기로 수익률, 기간에 따라 자산이 얼마나 불어나는지 계산해보세요. 시각화된 차트로 복리 효과를 쉽게 확인할 수 있습니다.">
+  <meta name="keywords" content="주식, 복리, 투자 계산기, 자산 증식, 수익률 계산, 주식 시뮬레이션">
+  <meta name="author" content="Techman">
+  <meta name="robots" content="index, follow">
+  <meta property="og:title" content="주식 복리 계산기">
+  <meta property="og:description" content="복리로 자산이 어떻게 커지는지 확인해보세요. 직관적인 계산기와 차트 제공.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://example.com/compound-calculator">
+  <meta property="og:image" content="https://example.com/images/og-thumbnail.png">
+
+  <link href="https://fonts.googleapis.com/css2?family=SUIT:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>주식 복리 계산기</title>
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      font-family: 'Pretendard', sans-serif;
+      background: linear-gradient(to right, #e0f7fa, #ffffff);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .calculator {
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      margin: 40px 20px;
+      padding: 40px;
+      max-width: 720px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 32px;
+      color: #00796b;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+
+    input[type="range"] {
+      width: 100%;
+    }
+
+    #rateDisplay {
+      font-weight: bold;
+      color: #00796b;
+      margin-left: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 18px;
+      background: #00796b;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #004d40;
+    }
+
+    .ad, .result-table, #chart-container {
+      margin-top: 30px;
+    }
+
+    .ad {
+      border: 1px dashed #bbb;
+      padding: 15px;
+      text-align: center;
+      color: #777;
+      font-size: 14px;
+    }
+
+    .result-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    .result-table th, .result-table td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    @media (max-width: 600px) {
+      .calculator {
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "주식 복리 계산기",
+  "url": "https://example.com/compound-calculator",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "All",
+  "description": "초기 금액, 수익률, 기간을 입력하면 복리로 자산이 얼마나 증가하는지 계산해주는 도구입니다.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  }
+}
+</script>
+
+</head>
+<body>
+  <div class="calculator">
+<div style="background:#ffffff;padding:32px;border-radius:16px;margin:40px 0;box-shadow:0 10px 30px rgba(0,0,0,0.06);font-size:17px;line-height:1.8;color:#2e2e2e;font-family:'SUIT', sans-serif;">
+  <h2 style="color:#00796b;margin-top:0;">📘 주식 복리 계산기란?</h2>
+  <p>
+    주식 복리 계산기는 사용자가 입력한 초기 투자 금액과 예상 수익률, 그리고 기간을 기반으로 자산의 복리 성장을 시뮬레이션할 수 있도록 도와주는 도구입니다.
+    '복리'란 단순히 원금에 대한 이자만 계산하는 것이 아니라, 발생한 이자까지도 다시 투자되어 이자 위에 또 이자가 붙는 방식입니다.
+  </p>
+  <p>
+    이 계산기는 일, 월, 연 단위를 선택할 수 있으며, 투자 기간을 최대 30단위까지 설정하여 다양한 시나리오를 직접 비교해볼 수 있도록 설계되어 있습니다.
+    슬라이더를 통해 직관적으로 수익률을 조정할 수 있고, 자동 쉼표 처리를 통해 금액 입력의 편의성도 고려되었습니다.
+  </p>
+  <p>
+    결과는 표로 확인할 수 있으며, 수익과 총 자산이 시간 흐름에 따라 어떻게 변화하는지를 시각적으로 확인할 수 있도록 차트로도 함께 제공합니다.
+    이 계산기를 통해 투자자들은 단기 또는 장기 투자 전략에 따라 얼마의 자산 증식이 가능한지를 구체적으로 이해할 수 있습니다.
+  </p>
+  <p>
+    복리 투자의 가장 큰 힘은 시간에 있습니다. 빠르게 시작하고 장기적으로 유지할수록 수익이 눈덩이처럼 불어나는 효과를 체감할 수 있습니다.
+    이 도구는 여러분이 투자 계획을 세우는 데 있어 기초가 되는 데이터와 직관적인 이해를 제공하는 데 큰 도움이 될 것입니다.
+  </p>
+</div>
+
+    <h1>📈 주식 복리 계산기</h1>
+
+    <label>초기 금액 (원):</label>
+    <input type="text" id="initialAmount" value="1,000,000" autocomplete="off" />
+
+    <label>수익률 (%): 
+      <input type="range" id="interestRate" min="1" max="100" value="10" />
+      <span id="rateDisplay">10%</span>
+    </label>
+
+    <label>기간 단위 선택:</label>
+    <select id="timeUnit">
+      <option value="daily">일</option>
+      <option value="monthly">월</option>
+      <option value="yearly">년</option>
+    </select>
+
+    <label>총 기간 (1~30):</label>
+    <select id="periodCount"></select>
+    <span id="periodUnitLabel">일</span>
+
+    <button onclick="calculateCompound()">💡 계산하기</button>
+
+    <div class="ad">[ 여기에 광고 배너 삽입 위치 1 ]</div>
+
+    <div id="resultArea"></div>
+
+    <div id="chart-container">
+      <canvas id="compoundChart" width="100%" height="350"></canvas>
+    </div>
+
+    <div class="ad">[ 여기에 광고 배너 삽입 위치 2 ]</div>
+  </div>
+
+  <script>
+    const periodSelect = document.getElementById("periodCount");
+    for(let i=1; i<=30; i++){
+      const option = document.createElement("option");
+      option.value = i;
+      option.textContent = i;
+      periodSelect.appendChild(option);
+    }
+
+    function formatNumberWithCommas(x) {
+      if (isNaN(x) || x === '') return '';
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function uncomma(x) {
+      return x.replace(/[^0-9]/g, "");
+    }
+
+    const initialInput = document.getElementById("initialAmount");
+    initialInput.addEventListener("input", function() {
+      let val = uncomma(this.value);
+      val = val.replace(/^0+/, '');
+      this.value = val ? formatNumberWithCommas(val) : "";
+    });
+
+    document.getElementById("interestRate").oninput = function() {
+      document.getElementById("rateDisplay").innerText = this.value + "%";
+    };
+
+    document.getElementById("timeUnit").onchange = function() {
+      let unit = "일";
+      if (this.value === "monthly") unit = "월";
+      else if (this.value === "yearly") unit = "년";
+      document.getElementById("periodUnitLabel").innerText = unit;
+    };
+
+    let compoundChart = null;
+
+    function calculateCompound() {
+      const principal = parseFloat(uncomma(document.getElementById("initialAmount").value));
+      const rate = parseFloat(document.getElementById("interestRate").value);
+      const timeUnit = document.getElementById("timeUnit").value;
+      const periodCount = parseInt(document.getElementById("periodCount").value);
+
+      if (isNaN(principal) || principal <= 0) {
+        alert("초기 금액을 올바르게 입력해 주세요.");
+        return;
+      }
+
+      let unitText = timeUnit === "monthly" ? "월" : (timeUnit === "yearly" ? "년" : "일");
+      let results = [], chartLabels = [], chartData = [];
+      let amount = principal;
+
+      for (let i = 1; i <= periodCount; i++) {
+        amount *= (1 + rate / 100);
+        let profit = amount - principal;
+        results.push({
+          period: i,
+          total: formatNumberWithCommas(amount.toFixed(0)),
+          profit: formatNumberWithCommas(profit.toFixed(0))
+        });
+        chartLabels.push(i + unitText);
+        chartData.push(Number(amount.toFixed(0)));
+      }
+
+      let html = `<h2>📊 결과 (${unitText} 단위)</h2><table class="result-table">
+                    <tr><th>${unitText}</th><th>총 금액 (원)</th><th>수익금 (원)</th></tr>`;
+      results.forEach(r => {
+        html += `<tr><td>${r.period}</td><td>${r.total}</td><td>${r.profit}</td></tr>`;
+      });
+      html += `</table>`;
+      document.getElementById("resultArea").innerHTML = html;
+
+      const ctx = document.getElementById("compoundChart").getContext("2d");
+      if (compoundChart) compoundChart.destroy();
+      compoundChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: chartLabels,
+          datasets: [{
+            label: '총 금액 (원)',
+            data: chartData,
+            fill: true,
+            borderColor: 'rgb(0, 150, 136)',
+            backgroundColor: 'rgba(0, 150, 136, 0.1)',
+            tension: 0.2,
+            pointRadius: 3
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: true }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: value => formatNumberWithCommas(value) + '원'
+              }
+            }
+          }
+        }
+      });
+    }
+  </script>
+
+  <footer style="text-align:center; font-size:14px; margin-top:50px; color:#666;">
+    <p>
+      <a href="about.html">소개</a> |
+      <a href="privacy.html">개인정보처리방침</a> |
+      <a href="contact.html">문의하기</a>
+    </p>
+    <p>&copy; 2025 Techman. All rights reserved.</p>
+  </footer>
+
+</body>
+</html>
